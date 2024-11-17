@@ -32,7 +32,7 @@ try {
 $search_results = null;
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_term = '%' . $_GET['search'] . '%';
-    $search_sql = 'SELECT id, author, title, publisher FROM projects WHERE title LIKE :search';
+    $search_sql = 'SELECT id, name, language, urgency, date FROM projects WHERE name LIKE :search';
     $search_stmt = $pdo->prepare($search_sql);
     $search_stmt->execute(['search' => $search_term]);
     $search_results = $search_stmt->fetchAll();
@@ -40,15 +40,16 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['author']) && isset($_POST['title']) && isset($_POST['publisher'])) {
+    if (isset($_POST['']) && isset($_POST['name']) && isset($_POST['language']) && isset($_POST['date']) && isset($_POST['urgency'])) {
         // Insert new entry
-        $author = htmlspecialchars($_POST['author']);
-        $title = htmlspecialchars($_POST['title']);
-        $publisher = htmlspecialchars($_POST['publisher']);
+        $name = htmlspecialchars($_POST['name']);
+        $language = htmlspecialchars($_POST['language']);
+        $date = htmlspecialchars($_POST['date']);
+        $urgency = htmlspecialchars($_POST['urgency']);
         
-        $insert_sql = 'INSERT INTO projects (author, title, publisher) VALUES (:author, :title, :publisher)';
+        $insert_sql = 'INSERT INTO projects (name, language, date, urgency) VALUES (:name, :language, :date, :urgency)';
         $stmt_insert = $pdo->prepare($insert_sql);
-        $stmt_insert->execute(['author' => $author, 'title' => $title, 'publisher' => $publisher]);
+        $stmt_insert->execute(['name' => $name, 'language' => $language, 'date' => $date, 'urgency' => $urgency]);
     } elseif (isset($_POST['delete_id'])) {
         // Delete an entry
         $delete_id = (int) $_POST['delete_id'];
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Get all projects for main table
 //comment again/
-$sql = 'SELECT id, author, title, publisher FROM projects';
+$sql = 'SELECT id, name, language, date, urgency FROM projects';
 $stmt = $pdo->query($sql);
 ?>
 
@@ -69,20 +70,20 @@ $stmt = $pdo->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Betty's project Banning and Bridge Building</title>
+    <name>Project Tracker Service</name>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Hero Section -->
     <div class="hero-section">
-        <h1 class="hero-title">Betty's project Banning and Bridge Building</h1>
-        <p class="hero-subtitle">"Because nothing brings a community together like collectively deciding what others shouldn't read!"</p>
+        <h1 class="hero-name">Project Tracker Service</h1>
+        <p class="hero-subname">"Remove anything you've completed!"</p>
         
         <!-- Search moved to hero section -->
         <div class="hero-search">
-            <h2>Search for a project to Ban</h2>
+            <h2>Search for a project to remove</h2>
             <form action="" method="GET" class="search-form">
-                <label for="search">Search by Title:</label>
+                <label for="search">Search by name:</label>
                 <input type="text" id="search" name="search" required>
                 <input type="submit" value="Search">
             </form>
@@ -95,23 +96,24 @@ $stmt = $pdo->query($sql);
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Author</th>
-                                    <th>Title</th>
-                                    <th>Publisher</th>
+                                    <th>Name</th>
+                                    <th>Language</th>
                                     <th>Actions</th>
+                                    <th>Urgency</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($search_results as $row): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($row['id']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['author']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['title']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['publisher']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['language']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['urgency']); ?></td>
                                     <td>
                                         <form action="index5.php" method="post" style="display:inline;">
                                             <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
-                                            <input type="submit" value="Ban!">
+                                            <input type="submit" value="Remove!">
                                         </form>
                                     </td>
                                 </tr>
@@ -133,20 +135,20 @@ $stmt = $pdo->query($sql);
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Author</th>
-                    <th>Title</th>
-                    <th>Publisher</th>
-                    <th>Actions</th>
+                    <th>Name</th>
+                    <th>Language</th>
+                    <th>Date</th>
+                    <th>Urgency</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $stmt->fetch()): ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['id']); ?></td>
-                    <td><?php echo htmlspecialchars($row['author']); ?></td>
-                    <td><?php echo htmlspecialchars($row['title']); ?></td>
-                    <td><?php echo htmlspecialchars($row['publisher']); ?></td>
-                    <td>
+                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['language']); ?></td>
+                    <td><?php echo htmlspecialchars($row['date']); ?></td>
+                    <td><?php echo htmlspecialchars($row['urgency']); ?></td>
                         <form action="index5.php" method="post" style="display:inline;">
                             <input type="hidden" name="delete_id" value="<?php echo $row['id']; ?>">
                             <input type="submit" value="Ban!">
@@ -160,18 +162,21 @@ $stmt = $pdo->query($sql);
 
     <!-- Form section with container -->
     <div class="form-container">
-        <h2>Condemn a project Today</h2>
+        <h2>Remove a completed project Today</h2>
         <form action="index5.php" method="post">
-            <label for="author">Author:</label>
-            <input type="text" id="author" name="author" required>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
             <br><br>
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
+            <label for="language">Language:</label>
+            <input type="text" id="language" name="language" required>
             <br><br>
-            <label for="publisher">Publisher:</label>
-            <input type="text" id="publisher" name="publisher" required>
+            <label for="date">Date:</label>
+            <input type="text" id="date" name="date" required>
             <br><br>
-            <input type="submit" value="Condemn project">
+            <label for="urgency">Urgency:</label>
+            <input type="text" id="urgency" name="urgency" required>
+            <br><br>
+            <input type="submit" value="Rid project">
         </form>
     </div>
 </body>
