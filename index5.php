@@ -1,6 +1,5 @@
 <?php
 
-// wowza!
 session_start();
 require_once 'auth.php';
 
@@ -11,9 +10,9 @@ if (!is_logged_in()) {
 }
 
 $host = 'localhost'; 
-$dbname = 'books'; 
-$user = 'mark'; 
-$pass = 'mark';
+$dbname = 'projects'; 
+$user = 'meta'; 
+$pass = 'password';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
@@ -29,11 +28,11 @@ try {
     throw new PDOException($e->getMessage(), (int)$e->getCode());
 }
 
-// Handle book search
+// Handle project search
 $search_results = null;
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search_term = '%' . $_GET['search'] . '%';
-    $search_sql = 'SELECT id, author, title, publisher FROM books WHERE title LIKE :search';
+    $search_sql = 'SELECT id, author, title, publisher FROM projects WHERE title LIKE :search';
     $search_stmt = $pdo->prepare($search_sql);
     $search_stmt->execute(['search' => $search_term]);
     $search_results = $search_stmt->fetchAll();
@@ -47,21 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $title = htmlspecialchars($_POST['title']);
         $publisher = htmlspecialchars($_POST['publisher']);
         
-        $insert_sql = 'INSERT INTO books (author, title, publisher) VALUES (:author, :title, :publisher)';
+        $insert_sql = 'INSERT INTO projects (author, title, publisher) VALUES (:author, :title, :publisher)';
         $stmt_insert = $pdo->prepare($insert_sql);
         $stmt_insert->execute(['author' => $author, 'title' => $title, 'publisher' => $publisher]);
     } elseif (isset($_POST['delete_id'])) {
         // Delete an entry
         $delete_id = (int) $_POST['delete_id'];
         
-        $delete_sql = 'DELETE FROM books WHERE id = :id';
+        $delete_sql = 'DELETE FROM projects WHERE id = :id';
         $stmt_delete = $pdo->prepare($delete_sql);
         $stmt_delete->execute(['id' => $delete_id]);
     }
 }
 
-// Get all books for main table
-$sql = 'SELECT id, author, title, publisher FROM books';
+// Get all projects for main table
+//comment again/
+$sql = 'SELECT id, author, title, publisher FROM projects';
 $stmt = $pdo->query($sql);
 ?>
 
@@ -69,18 +69,18 @@ $stmt = $pdo->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Betty's Book Banning and Bridge Building</title>
+    <title>Betty's project Banning and Bridge Building</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Hero Section -->
     <div class="hero-section">
-        <h1 class="hero-title">Betty's Book Banning and Bridge Building</h1>
+        <h1 class="hero-title">Betty's project Banning and Bridge Building</h1>
         <p class="hero-subtitle">"Because nothing brings a community together like collectively deciding what others shouldn't read!"</p>
         
         <!-- Search moved to hero section -->
         <div class="hero-search">
-            <h2>Search for a Book to Ban</h2>
+            <h2>Search for a project to Ban</h2>
             <form action="" method="GET" class="search-form">
                 <label for="search">Search by Title:</label>
                 <input type="text" id="search" name="search" required>
@@ -119,7 +119,7 @@ $stmt = $pdo->query($sql);
                             </tbody>
                         </table>
                     <?php else: ?>
-                        <p>No books found matching your search.</p>
+                        <p>No projects found matching your search.</p>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -128,7 +128,7 @@ $stmt = $pdo->query($sql);
 
     <!-- Table section with container -->
     <div class="table-container">
-        <h2>All Books in Database</h2>
+        <h2>All projects in Database</h2>
         <table class="half-width-left-align">
             <thead>
                 <tr>
@@ -160,7 +160,7 @@ $stmt = $pdo->query($sql);
 
     <!-- Form section with container -->
     <div class="form-container">
-        <h2>Condemn a Book Today</h2>
+        <h2>Condemn a project Today</h2>
         <form action="index5.php" method="post">
             <label for="author">Author:</label>
             <input type="text" id="author" name="author" required>
@@ -171,7 +171,7 @@ $stmt = $pdo->query($sql);
             <label for="publisher">Publisher:</label>
             <input type="text" id="publisher" name="publisher" required>
             <br><br>
-            <input type="submit" value="Condemn Book">
+            <input type="submit" value="Condemn project">
         </form>
     </div>
 </body>
